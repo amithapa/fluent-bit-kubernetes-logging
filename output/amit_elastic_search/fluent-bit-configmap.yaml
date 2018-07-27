@@ -72,41 +72,30 @@ data:
   filter-kubernetes.conf: |
     [FILTER]
         Name                kubernetes
-        Match               kube*docxtract*webapp*
-        Kube_URL            https://kubernetes.default.svc.cluster.local:443
-        Merge_Log           On
-        K8S-Logging.Parser  On
-
-    [FILTER]
-        Name                kubernetes
-        Match               kube*default*counter*
+        Match               kube*
         Kube_URL            https://kubernetes.default.svc.cluster.local:443
         Merge_Log           On
         K8S-Logging.Parser  On
 
     [FILTER]
         Name                grep
-        Match               kube*docxtract*webapp*
+        Match               kube*
         Exclude             log health_check
+
+    [FILTER]
+        Name                grep
+        Match               kube*
+        Exclude             kubernetes.namespace_name kube-system
 
 
   output-elasticsearch.conf: |
 
     [OUTPUT]
         Name                  es
-        Match                 kube*docxtract*webapp*
+        Match                 kube*
         Host                  ${FLUENT_ELASTICSEARCH_HOST}
         Port                  ${FLUENT_ELASTICSEARCH_PORT}
-        Type                  webapp_type
-        Logstash_Prefix       docxtract-webapp
-        Logstash_DateFormat   %m.%Y
+        Type                  kubernetes
+        Logstash_Prefix       kubernetes
+        Logstash_DateFormat   %Y.%m.%d
         Logstash_Format       On
-
-    [OUTPUT]
-        Name            es
-        Match           kube*default*counter*
-        Host            ${FLUENT_ELASTICSEARCH_HOST}
-        Port            ${FLUENT_ELASTICSEARCH_PORT}
-        Index           default-counter
-        Parser          counter
-        Key_Name        log
